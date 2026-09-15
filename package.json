@@ -1,0 +1,20 @@
+{
+  "name": "my-playwright-project",
+  "version": "1.0.0",
+  "description": "Playwright framework setuo with MCP integration",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "playwright",
+    "playwright-mcp",
+    "playwright-e2e-tests"
+  ],
+  "author": "Rajashekar Playwright framework",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^26.5.1"
+  }
+}
