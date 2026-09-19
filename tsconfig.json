@@ -1,11 +1,15 @@
 {
-    "compilerOptions": {
-        "target": "ES2024",
-        "module": "ESNext",
-        "moduleResolution": "bundler",
-        "strict": true,
-        "esModuleInterop": true,
-        "forceConsistentCasingInFileNames": true,
-        "types": ["node", "playwright"],
-    }
+  "compilerOptions": {
+    "target": "ES2024",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "noImplicitAny": false,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node", "playwright"]
+  },
+  "include": ["tests/**/*.ts", "data/**/*.ts", "*.playwright.config.ts"],
+  "exclude": ["node_modules", "dist"]
 }

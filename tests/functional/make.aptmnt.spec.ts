@@ -1,19 +1,28 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Make Appointment", () => {
-  test.beforeEach("Go to Login Page", async ({ page }) => {
-    await page.goto("https://katalon-demo-cura.herokuapp.com/");
+  test.beforeEach("Go to Login Page", async ({ page }, testInfo) => {
+    // Get the config file
+    const configFile = testInfo.project.use as any;
+
+    // Go to the login page and perform login
+    await page.goto(configFile.baseURL);
     await page.getByRole("link", { name: "Make Appointment" }).click();
     await expect(page.getByText("Please login to make")).toBeVisible();
     await page.getByLabel("Username").click();
-    await page.getByLabel("Username").fill("John Doe");
+    await page.getByLabel("Username").fill(configFile.username);
     await page.getByLabel("Password").click();
-    await page.getByLabel("Password").fill("ThisIsNotAPassword");
+    await page.getByLabel("Password").fill(configFile.password);
     await page.getByRole("button", { name: "Login" }).click();
+
+    // Get login cookies
+    const loginCookies = await page.context().cookies();
+    process.env.LOGIN_COOKIES = JSON.stringify(loginCookies);
+    
     await expect(page.locator("h2")).toContainText("Make Appointment");
   });
 
-  test("User should be able to make an appointment", async ({ page }) => {
+  test("User should be able to make an appointment with non-default parameters", async ({ page }) => {
     await expect(page.locator("h2")).toContainText("Make Appointment");
     await page
       .getByLabel("Facility")
