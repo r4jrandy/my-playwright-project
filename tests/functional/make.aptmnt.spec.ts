@@ -1,9 +1,12 @@
 import { test, expect } from "@playwright/test";
+import {log} from "../helpers/logger";
 
 test.describe("Make Appointment", () => {
   test.beforeEach("Go to Login Page", async ({ page }, testInfo) => {
     // Get the config file
     const configFile = testInfo.project.use as any;
+    // Log the environment name
+    await log("info", `Running in environment: ${configFile.envName}`);
 
     // Go to the login page and perform login
     await page.goto(configFile.baseURL);

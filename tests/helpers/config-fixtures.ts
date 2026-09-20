@@ -3,6 +3,9 @@ import {test as base, expect} from '@playwright/test';
 export type EnvConfig = {
     envName: string;
     baseUrl: string;
+    testUsername: string;
+    testPassword: string;
+    baseURL: string;
     username: string;
     password: string;
     dbConfig: {};

@@ -11,4 +11,5 @@ node_modules/
 logs/
 allure-results/
 *.log
-tests/test-*.spec.ts
+/tests/test-*.spec.ts
+test-*.spec.ts
