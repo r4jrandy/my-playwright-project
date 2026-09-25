@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import HomePage from "../page-objects/home.page";
 import { log } from "../helpers/logger";
 
-test.describe("Way2Automation Login Test", () => {
+test.describe("Way2Automation Login Test",{ tag: "@stage" }, () => {
   test("Way2Automation Login Test", async ({ page }, testInfo) => {
     // Get the config file
     const configFile = testInfo.project.use as any;

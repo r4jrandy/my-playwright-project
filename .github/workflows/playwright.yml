@@ -4,10 +4,31 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: Environment to test
+        required: true
+        type: choice
+        options:
+          - dev
+          - stage
+        default: dev
 jobs:
   test:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event_name == 'workflow_dispatch' && inputs.target_environment || 'dev' }}
+    env:
+      ENV_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.target_environment || 'dev' }}
+      BASE_URL: ${{ vars.BASE_URL }}
+      TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+      TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+      DB_SERVER: ${{ vars.DB_SERVER }}
+      DB_DATABASE: ${{ vars.DB_DATABASE }}
+      DB_CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
@@ -15,10 +36,18 @@ jobs:
         node-version: lts/*
     - name: Install dependencies
       run: npm ci
+    - name: Validate environment configuration
+      run: |
+        for name in BASE_URL TEST_USERNAME TEST_PASSWORD; do
+          if [ -z "${!name}" ]; then
+            echo "Required environment setting $name is missing for $ENV_NAME" >&2
+            exit 1
+          fi
+        done
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - name: Run Playwright tests
-      run: npx playwright test
+      run: npx playwright test --config=config/test.playwright.config.ts
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:

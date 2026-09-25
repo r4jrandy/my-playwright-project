@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import {log} from "../helpers/logger";
 
-test.describe("Make Appointment", () => {
+test.describe("Make Appointment", { tag: "@dev" }, () => {
   test.beforeEach("Go to Login Page", async ({ page }, testInfo) => {
     // Get the config file
     const configFile = testInfo.project.use as any;

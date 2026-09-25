@@ -3,6 +3,16 @@ import { defineConfig } from "@playwright/test";
 import { EnvConfig } from "../tests/helpers/config-fixtures";
 import path from "path";
 
+const requiredCiVariables = ["BASE_URL", "TEST_USERNAME", "TEST_PASSWORD"] as const;
+if (process.env.CI === "true") {
+    const missingVariables = requiredCiVariables.filter((name) => !process.env[name]);
+    if (missingVariables.length > 0) {
+        throw new Error(
+            `Missing required CI environment variables for ${process.env.ENV_NAME || "dev"}: ${missingVariables.join(", ")}`,
+        );
+    }
+}
+
 export default defineConfig<EnvConfig>({
     ...baseConfig,
     testDir: path.resolve(process.cwd(), "./tests"),
