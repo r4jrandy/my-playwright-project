@@ -25,7 +25,7 @@ export default class HomePage extends BasePage {
     }
 
     async login(username: string, password: string) {
-        await log("info", `Logging in with username: ${username}`);
+        await log("info", "Submitting login credentials");
         await this.fillInput(this.usernameInput, username);
         await this.fillInput(this.passwordInput, password);
         await this.clickElement(this.loginButton);

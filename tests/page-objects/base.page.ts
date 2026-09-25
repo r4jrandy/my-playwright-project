@@ -17,7 +17,7 @@ export default class BasePage {
     }
 
     async fillInput(locator: Locator, value: string) {
-        await log("info", `Filling input with value: ${value}`);
+        await log("info", "Filling input");
         await locator.fill(value);
     }
 

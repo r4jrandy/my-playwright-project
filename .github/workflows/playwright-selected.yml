@@ -1,0 +1,109 @@
+name: Selected Playwright Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: Environment to test
+        required: true
+        type: choice
+        options:
+          - dev
+          - stage
+        default: dev
+      browser:
+        description: Browser project to run
+        required: true
+        type: choice
+        options:
+          - chromium
+          - firefox
+          - webkit
+        default: chromium
+      test_path:
+        description: Optional test file or folder under tests/ (for example tests/e2e/e2e.spec.ts)
+        required: false
+        type: string
+      test_grep:
+        description: Optional test title or tag filter (Playwright --grep regular expression)
+        required: false
+        type: string
+
+jobs:
+  selected-tests:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.target_environment }}
+    env:
+      ENV_NAME: ${{ inputs.target_environment }}
+      BASE_URL: ${{ vars.BASE_URL }}
+      TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+      TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+      DB_SERVER: ${{ vars.DB_SERVER }}
+      DB_DATABASE: ${{ vars.DB_DATABASE }}
+      DB_CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
+      BROWSER: ${{ inputs.browser }}
+      TEST_PATH: ${{ inputs.test_path }}
+      TEST_GREP: ${{ inputs.test_grep }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate selections and environment configuration
+        shell: bash
+        run: |
+          if [[ -z "$TEST_PATH" && -z "$TEST_GREP" ]]; then
+            echo "Provide a test path, a title/tag filter, or both." >&2
+            exit 1
+          fi
+
+          if [[ -n "$TEST_PATH" ]]; then
+            case "$TEST_PATH" in
+              tests/*) ;;
+              *) echo "Test path must be inside tests/." >&2; exit 1 ;;
+            esac
+            if [[ "$TEST_PATH" == *".."* || ! -e "$TEST_PATH" ]]; then
+              echo "Test path does not exist or is not allowed: $TEST_PATH" >&2
+              exit 1
+            fi
+          fi
+
+          for name in BASE_URL TEST_USERNAME TEST_PASSWORD; do
+            if [[ -z "${!name}" ]]; then
+              echo "Required environment setting $name is missing for $ENV_NAME" >&2
+              exit 1
+            fi
+          done
+
+      - name: Install selected Playwright browser
+        run: npx playwright install --with-deps "$BROWSER"
+
+      - name: Run selected tests
+        shell: bash
+        run: |
+          args=(--config=config/test.playwright.config.ts --project "$BROWSER")
+          if [[ -n "$TEST_PATH" ]]; then
+            args+=("$TEST_PATH")
+          fi
+          if [[ -n "$TEST_GREP" ]]; then
+            args+=(--grep "$TEST_GREP")
+          fi
+          npx playwright test "${args[@]}"
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: playwright-${{ inputs.target_environment }}-${{ inputs.browser }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
+          if-no-files-found: ignore
