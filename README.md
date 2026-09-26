@@ -276,4 +276,9 @@ Try the test by itself and with one worker:
 ENV_NAME=dev npx playwright test --config=config/test.playwright.config.ts tests/path/to/test.spec.ts --project=chromium --workers=1
 ```
 
+```bash
+npm run test:dev -- tests/functional/login.spec.ts
+npm run test:stage -- --grep "@smoke"
+```
+
 Check `test-results/` for the failure context, screenshot, video, or trace. Make sure the selected environment is safe for automated test data and that the configured test account is valid.

@@ -4,7 +4,8 @@
   "description": "Playwright framework setuo with MCP integration",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test:dev": "ENV_NAME=dev playwright test --config=config/test.playwright.config.ts",
+    "test:stage": "ENV_NAME=stage playwright test --config=config/test.playwright.config.ts"
   },
   "keywords": [
     "playwright",
